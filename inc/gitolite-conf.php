@@ -1,7 +1,7 @@
 <?php
 /**
- * Ce fichier contient les fonctions pour générer le fichier de configuration
- * de gitolite contenant les entrepôts et les permissions.
+ * Ce fichier contient les fonctions pour gÃ©nÃ©rer le fichier de configuration
+ * de gitolite contenant les entrepÃ´ts et les permissions.
  *
  * @author Simon Marchi <simon.marchi@polymtl.ca>
  */
@@ -10,11 +10,11 @@ require_once('config.php');
 require_once('log.php');
 
 /**
- * Imprime l'entrée d'un entrepôt dans un flux de sortie (généralement le
+ * Imprime l'entrï¿½e d'un entrepï¿½t dans un flux de sortie (gï¿½nï¿½ralement le
  * fichier de configuration).
  *
  * @param out Flux de sortie
- * @param repo Entrepôt à imprimer
+ * @param repo Entrepï¿½t ï¿½ imprimer
  */
 function _conf_print_repo($out, $repo) {
 	fprintf($out, "repo    %s\n", $repo['name']);
@@ -28,10 +28,10 @@ function _conf_print_repo($out, $repo) {
 }
 
 /**
- * Imprime l'entrée de l'entrepôt administrateur.
+ * Imprime l'entrï¿½e de l'entrepï¿½t administrateur.
  *
  * @param out Flux de sortie
- * @param admins Liste des administrateurs de l'entrepôt gitolite-admin
+ * @param admins Liste des administrateurs de l'entrepï¿½t gitolite-admin
  */
 function _conf_print_admin_repo($out, $admins) {
 	fprintf($out, "@admins = %s\n", implode(' ', $admins));
@@ -41,10 +41,10 @@ function _conf_print_admin_repo($out, $admins) {
 }
 
 /**
- * Change le répertoire de travail.
+ * Change le rï¿½pertoire de travail.
  *
- * @param dir Le nouveau répertoire de travail.
- * @return L'ancien répertoire de travail, faux en cas d'échec.
+ * @param dir Le nouveau rï¿½pertoire de travail.
+ * @return L'ancien rï¿½pertoire de travail, faux en cas d'ï¿½chec.
  */
 function _gitolite_chdir($dir) {
 	$oldcwd = getcwd();
@@ -65,12 +65,12 @@ function _gitolite_chdir($dir) {
 }
 
 /**
- * Génère le fichier de configuration des entrepôts de gitolite.
+ * Gï¿½nï¿½re le fichier de configuration des entrepï¿½ts de gitolite.
  *
- * @param repos Liste des entrepôts.
- * @param admins Liste des administrateurs de l'entrepôt gitolite-admin
+ * @param repos Liste des entrepï¿½ts.
+ * @param admins Liste des administrateurs de l'entrepï¿½t gitolite-admin
  *
- * @return Vrai si le fichier de configuration a été écrit avec succès, faux
+ * @return Vrai si le fichier de configuration a ï¿½tï¿½ ï¿½crit avec succï¿½s, faux
  *     autrement.
  */
 function gitolite_generate_config($repos, $admins) {
@@ -88,10 +88,10 @@ function gitolite_generate_config($repos, $admins) {
 		goto err;
 	}
 
-	/* Imprimer l'entrepôt admin */
+	/* Imprimer l'entrepï¿½t admin */
 	_conf_print_admin_repo($out, $admins);
 	
-	/* Imprimer les entrepôts */
+	/* Imprimer les entrepï¿½ts */
 	foreach ($repos as $repo) {
 		_conf_print_repo($out, $repo);
 	}
@@ -120,14 +120,14 @@ err:
 }
 
 /**
- * Envoie la configuration, si nécessaire.
+ * Envoie la configuration, si nï¿½cessaire.
  * 
- * @return Vrai si la configuration a bien été envoyée.
+ * @return Vrai si la configuration a bien ï¿½tï¿½ envoyï¿½e.
  */
 function gitolite_commit_config() {
 	log_d("gitolite_commit_config: start");
 
-	/* Nécessaire pour que git trouve le fichier .gitconfig */
+	/* Nï¿½cessaire pour que git trouve le fichier .gitconfig */
 	putenv("HOME=".HOME_DIR);
 	
 	$oldcwd = _gitolite_chdir(ADMIN_REPO_PATH);
@@ -198,11 +198,11 @@ err:
 }
 
 /**
- * Écrit la clé d'un utilisateur dans le dossier keys de gitolite.
+ * ï¿½crit la clï¿½ d'un utilisateur dans le dossier keys de gitolite.
  *
  * @param username Le nom de l'utilisateur.
- * @param key La clé.
- * @return True si la clé a bien été écrite.
+ * @param key La clï¿½.
+ * @return True si la clï¿½ a bien ï¿½tï¿½ ï¿½crite.
  */
 function gitolite_set_key($username, $key) {
 	log_d("gitolite_set_key: start ($username)");
@@ -214,7 +214,7 @@ function gitolite_set_key($username, $key) {
 		return false;
 	}
 
-	/* Écrire la clé */
+	/* ï¿½crire la clï¿½ */
 	$filename = KEYDIR_PATH."$username.pub";
 	$ret = file_put_contents($filename, $key . "\n");
 	if (!$ret) {
@@ -239,11 +239,11 @@ err:
 }
 
 /**
- * Lit la clé d'un utilisateur du dossier keys de gitolite.
+ * Lit la clï¿½ d'un utilisateur du dossier keys de gitolite.
  *
  * @param username Le nom de l'utilisateur.
- * @return Chaine contenant la clé,
- *         false en cas d'erreur, incluant si la clé n'est pas trouvée.
+ * @return Chaine contenant la clï¿½,
+ *         false en cas d'erreur, incluant si la clï¿½ n'est pas trouvï¿½e.
  */
 function gitolite_get_key($username) {
 	log_d("gitolite_get_key: start ($username)");
@@ -255,7 +255,7 @@ function gitolite_get_key($username) {
 		return false;
 	}
 
-	/* Lire la clé */
+	/* Lire la clï¿½ */
 	$filename = KEYDIR_PATH."$username.pub";
 	$ret = file_get_contents($filename);
 	if (!$ret) {
@@ -278,12 +278,12 @@ err:
 }
 
 /**
- * Envoie les clés modifiées ou ajoutées.
+ * Envoie les clï¿½s modifiï¿½es ou ajoutï¿½es.
  */
 function gitolite_commit_keys() {
 	log_d("gitolite_commit_keys: start");
 
-	/* Nécessaire pour que git trouve le fichier .gitconfig */
+	/* Nï¿½cessaire pour que git trouve le fichier .gitconfig */
 	putenv("HOME=".HOME_DIR);
 	
 	/* chdir */
@@ -366,8 +366,8 @@ err:
 }
 
 /**
- * Appeler cette fonction indique que la configuration a changée, et qu'une
- * regénération des permissions est nécessaire.
+ * Appeler cette fonction indique que la configuration a changï¿½e, et qu'une
+ * regï¿½nï¿½ration des permissions est nï¿½cessaire.
  */
  function set_config_changed() {
 	// Pour pallier au fait que le serveur roule en www-https et que le cron job
@@ -380,7 +380,7 @@ function has_config_changed() {
 }
 
 /**
- * Indique que la configuration a été sauvegardée.
+ * Indique que la configuration a ï¿½tï¿½ sauvegardï¿½e.
  */
 function done_config_changed() {
 	unlink(PERM_GEN_PATH);

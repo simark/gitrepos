@@ -12,6 +12,8 @@
 require_once('inc/gitolite-conf.php');
 require_once('inc/db.php');
 require_once('inc/mutex.php');
+require_once('inc/Repository.php');
+
 
 function main() {
 	global $admins;
@@ -40,7 +42,8 @@ function main() {
 	try {
 		$db = db_connect();
 
-		$repos = db_get_all_repos($db);
+		//$repos = db_get_all_repos($db);
+    $repos = Repository::GitoliteConfig($db);
 
 		db_close($db);
 	} catch (MySQLException $ex) {

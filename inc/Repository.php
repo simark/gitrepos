@@ -79,4 +79,24 @@ class Repository
     $rid = $repo->ID;
     $db->query("UPDATE UserRepoPerms as urp SET is_owner = '1' WHERE urp.user = $uid AND urp.Repo = $rid;");
   }
+
+  public static function GitoliteConfig($db) {
+    $db->query(
+      "SELECT r.id, r.name, u.username as owner
+         FROM Repos as r, UserRepoPerms as urp, Users as u
+         WHERE urp.is_owner AND u.id = urp.user AND r.id = urp.Repo
+         ORDER BY r.name DESC;");
+
+    $repos = $db->fetchAll();
+    foreach ($repos as $key => $value) {
+      $rid = $value['id'];
+      $db->query(
+        "SELECT p.name as level, u.username as user
+         FROM UserRepoPerms as urp, Users as u, Perms as p
+         WHERE urp.Repo = $rid AND u.id = urp.user AND p.id = urp.Perm
+         ORDER BY u.username DESC;");
+      $repos[$key]['perms'] = $db->fetchAll();
+    }
+    return $repos;
+  }
 }
