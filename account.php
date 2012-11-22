@@ -2,6 +2,7 @@
 
 require_once('inc/session.php');
 require_once('inc/db.php');
+require_once('inc/rfc822.php');
 require_once('inc/template.php');
 require_once('inc/password.php');
 require_once('inc/session.php');
@@ -9,86 +10,144 @@ require_once('inc/form.php');
 require_once('inc/Validate.php');
 require_once('inc/gitolite-conf.php');
 
+/*
+echo '<pre>';
+var_dump(Session::User());
+echo '</pre>';
+*/
+//session_start();
+//session_destroy();
+
 Session::PrivateZone();
 
-$data = array('user' => Session::User(), 'errors' => array(), 'msg' => '', 'email' => false);
+$data = array('errors' => array());
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST')  Modify($data);
+$user = Session::User();
+if ($user == null) {
+  $user = User::MakeEmpty();
+  $user->OpenID = Session::Id();
+}
 
-if (!$data['user']->NotStudent && !$data['user']->IsStudent) {
-  $data['msg'] =$data['email']
-    ? "Un courriel de vérification a été envoyé à l'addresse que vous avez fournit."
-    : "Il semble que votre compte n'aie pas été vérifié comme étant celui d'un étudiant de Polytechnique.
-    Le service de référentiel Git offert par le Step est principalement orienté pour les étudiants.
-    Vous pouvez tout de même y accéder mais vous ne pourrez pas créé de nouveau référentiel.
-    Pour valider votre compte, assurez vous que vous avez utilisé votre addresse courriel de Poly et
-    appuyer sur <b>valider</b>.";
+$data['user'] = $user;
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+  if ($user->ID)  mod_user($data);
+  else  new_user($data);
+}
+
+if ($user->Username == '') {
+  $data['msg'] =
+"Veuillez s'il vous plaît entrez les informations nécessaires de manière à ce que nous puissions
+ créer votre compte et vous pourrez ensuite poursuivre avec son utilidation.
+ <br /><br />
+ Entrez une addresse @[...]polymtl.ca pour jouïr de certaines fonctionnalitée avancées.";
 }
 
 echo render_template('account', $data);
 
 //----------- Helpers ----------------------
 
-function Save(&$data) {
-  $db = db_connect();
-  $data['user']->Save($db, get_post('username'), get_post('name'), get_post('email'), get_post('pubkey'));
-  db_close($db);
-}
+function mod_user(&$data) {
+  $username = get_post('username');
+  $email = get_post('email');
 
-function Validate(&$data) {
-  $ok = SendValidationMail($data['user']->Name, $data['user']->Email, "lolsaure");
-  if (!$ok) {
-    $data['errors'][] = "Send Mail Failed.";
+  $err = is_data_valid($username, $email);
+  if ($err != null) {
+    $data['errors'][] = $err;
+    return;
   }
-  return;
+
+  // Si nous avons confirmer l'utilisateur,
+  // il ne peut plus changer son courriel.
+  if ($data['user']->IsStudent && $data['user']->Username != $username) {
+    $data['errors'][] = "Vous ne pouvez plus changer votre addresse courriel une fois confirmée.";
+    return;
+  }
+
+  $data['user']->Name = get_post('name');
+  $data['user']->Email = $email;
+  $data['user']->Username = $username;
+  $data['user']->PubKey = get_post('pubkey');
+
   try {
     $db = db_connect();
-    $validate = Validate::ByUser($db, $data['user']);
-    if ($validate != null) {
-      $data['errors'][] = "Un code de validation a déjà été envoyé concernant cet utilisateur.";
-      db_close($db);
-      return;
-    }
-    Validate::Create($db, $data['user']);
-    $validate = Validate::ByUser($db, $data['user']);
-    if ($validate == null) {
-      $data['errors'][] = "Something weird just happened. Please contact God, ask him why he dit that.";
-      db_close($db);
-      return;
-    }
+    $data['user']->Save($db);
     db_close($db);
-
-    SendValidationMail($data['user']->Name, $data['user']->Email, $validate->Code);
-    $data['email'] = true;
   } catch (MySQLException $ex) {
-    $data['errors'][] = $ex;
+    $data['errors'][] = $err;
   }
 }
 
-function StopAsking(&$data) {
-  $db = db_connect();
-  $data['user']->SetStopAsking($db);
-  db_close($db);
+function new_user(&$data) {
+  $username = get_post('username');
+  $email = get_post('email');
+
+  $err = is_data_valid($username, $email);
+  if ($err != null) {
+    $data['errors'][] = $err;
+    return;
+  }
+
+  try {
+    $db = db_connect();
+
+    $err = is_username_used($db, $username);
+    if ($err != null) {
+      $data['errors'][] = $err;
+      db_close($db);
+      return;
+    }
+
+    // Save User
+    $user = User::MakeEmpty();
+    $err = $user->Insert($db, Session::Id(), get_post('name'), $email, get_post('pubkey'), $username);
+    $data['user'] = $user;
+
+    // Send verification
+    if (Pattern::MatchesPoly($email)) {
+      $validation = Validate::MakeWithNoUser();
+      $err = SendValidationMail($user, $validation->Code);
+      if ($err != null) {
+        $data['errors'][] = $err;
+        db_close($db);
+        return;
+      }
+      $validation->Save($db, $user);
+    }
+
+    db_close($db);
+  } catch (MySQLException $ex) {
+    $data['errors'][] = $err;
+  }
 }
 
-function Modify(&$data) {
-  if (get_post('save'))  Save($data);
-  else if (get_post('validate'))  Validate($data);
-  else if (get_post('stop'))  StopAsking($data);
-
-  Session::LogOut();
-  Session::LogIn($data['user']->OpenID);
-  $data['user'] = Session::User();
-  gitolite_set_key($data['user']->Username, $data['user']->PubKey);
+function is_data_valid($username, $email) {
+  if (!Pattern::MatchesUser($username))
+    return "Votre nom d'utilisateur ne respecte pas le bon format.";
+  if (!is_valid_email_address($email))
+    return "Votre addresse courriel n'est pas valide selon RFC5322.";
+  return null;
 }
 
-function SendValidationMail($name, $email, $code) {
+function is_username_used($db, $username) {
+  $user = null;
+  $err = null;
+  try {
+    $user = User::ByName($db, $username);
+  } catch (MySQLException $ex) {
+    $err = $ex;
+  }
+  if ($err)  return $err;
+  if ($user != null)  return "Le nom d'utilisateur que vous avez choisit existe déjà.";
+  return null;
+}
+
+function SendValidationMail(User $user, $code) {
 // subject
   $subject = 'Courriel de vérification pour votre compte Git au step.';
 
 // message
   $message = '
-Bonjour '.$name.',
+Bonjour '.$user->Name.',
 
 Ce courriel vous est envoyé puisque vous avez demandé une confirmation
 d\'addresse courriel pour la création d\'un référentiel Git sur les
@@ -103,9 +162,11 @@ Veuillez naviguer vers le lien suivant pour finalisez la validation :
   $headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
 
 // Additional headers
-  $headers .= 'To: '.$name.' <'.$email.'>' . "\r\n";
+  $headers .= 'To: '.$user->Name.' <'.$user->Email.'>' . "\r\n";
   $headers .= 'From: Service Git du Step <gitadmin@step.com>' . "\r\n";
 
 // Mail it
-  mail($email, $subject, $message, $headers);
+  $ok = mail($user->Email, $subject, $message, $headers);
+  if (!$ok)  return "Problème dans l'envoie du email. Veuillez communiquer avec le STEP.";
+  return null;
 }

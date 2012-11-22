@@ -34,17 +34,18 @@ class Validate
     $db->query("DELETE FROM Validation WHERE Validation.user = $uid;");
   }
 
-  private static function MakeRandomCode() {
+  public static function MakeWithNoUser() {
     $str = '';
     for ($i = 0; $i < 10; $i++) {
       $str .= mt_rand(1000, 9999);
     }
-    return base64_encode($str);
+    return new Validate(array('code' => base64_encode($str)));
   }
 
-  public static function Create($db, User $user) {
-    $uid = $user->ID;
-    $code = self::MakeRandomCode();
+  public function Save($db, User $user) {
+    $this->User = $user->ID;
+    $uid = $this->User;
+    $code = $this->Code;
     $db->query("INSERT INTO Validation (user, code) VALUES ('$uid', '$code');");
   }
 }

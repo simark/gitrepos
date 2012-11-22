@@ -14,19 +14,21 @@ class Session {
 
   public static function LogIn($openid) {
     $_SESSION[self::$openidkey] = $openid;
-    $db = db_connect();
-    $_SESSION[self::$userkey] = User::ByOpenID($db, self::Id());
-    db_close($db);
   }
 
   public static function LogOut() {
     unset($_SESSION[self::$openidkey]);
-    unset($_SESSION[self::$userkey]);
+    if (isset($_SESSION[self::$userkey]))
+      unset($_SESSION[self::$userkey]);
   }
 
   public static function Id() {
     return isset($_SESSION[self::$openidkey])
       ? $_SESSION[self::$openidkey] : null;
+  }
+
+  public static function Reset(User $user) {
+    $_SESSION[self::$userkey] = $user;
   }
 
   public static function User() {
@@ -35,9 +37,10 @@ class Session {
 
   public static function PublicZone() {
     if (session_id() == '')  session_start();
-    if (!self::isLogged()) return;
-    Router::To('myrepos.php');
-    exit(0);
+    if (self::isLogged()) {
+      if (self::User() == null)  Router::To('account.php');
+      else Router::To('myrepos.php');
+    }
   }
 
   public static function PrivateZone() {
@@ -47,7 +50,7 @@ class Session {
     exit(0);
   }
 }
-
+/*
 function session_start_public() {
 	session_start();
 	
@@ -88,3 +91,4 @@ function session_logout() {
 }
 
 ?>
+*/

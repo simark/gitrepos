@@ -1,5 +1,6 @@
 <?php
 
+
 require_once('inc/session.php');
 require_once('inc/form.php');
 require_once('inc/template.php');

@@ -42,10 +42,6 @@ title='Mon compte'}
         </tr>
     </table>
     <input type="Submit" width="80" value="Sauvegarder" name="save" style="padding: 5px 20px;" />
-    {if !$user->IsStudent && !$user->NotStudent}
-        <input type="Submit" width="80" value="Valider" name="validate" style="padding: 5px 20px;" />
-        <input type="Submit" width="80" value="Je ne suis pas un étudiant" name="stop" style="padding: 5px 20px;" />
-    {/if}
 </form>
 
 {include file="endContent.tpl"}

@@ -4,7 +4,7 @@
  * Infos de la base de donn�es.
  */
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'gitstep');
+define('DB_NAME', 'gitrepos');
 define('DB_USER', 'gitrepos');
 define('DB_PASS', 'CZMvcVTrNwRPGnPH');
 
@@ -30,6 +30,11 @@ class Pattern {
     if (!self::$user)
       self::$user = sprintf("/^[a-zA-Z0-9_]{%d,%d}$/", USERNAME_MIN_LEN, USERNAME_MAX_LEN);
     return preg_match(self::$user, $name);
+  }
+  public static function MatchesPoly($email) {
+    // Je n'ai pas permis les commentaires, ni les espaces, ni les caractère entre guillement dans le domain.
+    // Screw them s'ils les utilisent.
+    return preg_match('@(|.*\.)polymtl\.ca$', $email);
   }
 }
 
