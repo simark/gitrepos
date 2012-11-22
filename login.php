@@ -1,9 +1,10 @@
 <?php
 
-
+require_once('inc/db.php');
 require_once('inc/session.php');
 require_once('inc/form.php');
 require_once('inc/template.php');
+require_once('inc/User.php');
 require_once('openid.php');
 
 Session::PublicZone();
@@ -23,6 +24,14 @@ if (OpenIDHelper::AuthHasBegun()) {
   if ($err != null) $errors[] = $err->Msg;
   if ($openid != '') {
     Session::LogIn($openid);
+
+    $db = db_connect();
+    $user = User::ByOpenID($db, $openid);
+    db_close($db);
+
+    if ($user != null)
+      Session::Reset($user);
+
     Session::PublicZone();
   }
 }

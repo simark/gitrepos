@@ -46,7 +46,7 @@ class Repository
     $id = $db->escape($unsafe_id);
     $db->query("SELECT r.*, urp.perm FROM Repos as r, UserRepoPerms as urp WHERE r.id = urp.repo AND urp.user = '$id'");
     $data = $db->fetchAll();
-    if (!$data)  return null;
+    if (!$data)  return array();
 
     $return = array();
     foreach ($data as $value) {

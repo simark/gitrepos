@@ -34,7 +34,7 @@ class Pattern {
   public static function MatchesPoly($email) {
     // Je n'ai pas permis les commentaires, ni les espaces, ni les caractère entre guillement dans le domain.
     // Screw them s'ils les utilisent.
-    return preg_match('@(|.*\.)polymtl\.ca$', $email);
+    return preg_match("/@(|.*\.)polymtl\.ca$/", $email);
   }
 }
 

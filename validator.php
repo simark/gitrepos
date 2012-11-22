@@ -2,6 +2,7 @@
 require_once('inc/db.php');
 require_once('inc/form.php');
 require_once('inc/template.php');
+require_once('inc/User.php');
 require_once('inc/Validate.php');
 
 $data = array('errors' => array(), 'user' => null, 'msg' => 'Votre addresse est vérifiée.');

@@ -9,6 +9,7 @@ require_once('inc/session.php');
 require_once('inc/form.php');
 require_once('inc/Validate.php');
 require_once('inc/gitolite-conf.php');
+require_once('inc/Router.php');
 
 /*
 echo '<pre>';
@@ -20,7 +21,7 @@ echo '</pre>';
 
 Session::PrivateZone();
 
-$data = array('errors' => array());
+$data = array('errors' => array(), 'msg' => '');
 
 $user = Session::User();
 if ($user == null) {
@@ -31,7 +32,10 @@ if ($user == null) {
 $data['user'] = $user;
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   if ($user->ID)  mod_user($data);
-  else  new_user($data);
+  else  {
+    new_user($data);
+    Router::To('myrepos.php');
+  }
 }
 
 if ($user->Username == '') {
@@ -58,7 +62,7 @@ function mod_user(&$data) {
 
   // Si nous avons confirmer l'utilisateur,
   // il ne peut plus changer son courriel.
-  if ($data['user']->IsStudent && $data['user']->Username != $username) {
+  if ($data['user']->IsStudent && $data['user']->Email != $email) {
     $data['errors'][] = "Vous ne pouvez plus changer votre addresse courriel une fois confirmée.";
     return;
   }
@@ -71,6 +75,19 @@ function mod_user(&$data) {
   try {
     $db = db_connect();
     $data['user']->Save($db);
+
+    // Send verification
+    if (Pattern::MatchesPoly($email) && !$data['user']->IsStudent) {
+      $validation = Validate::MakeWithNoUser();
+      $err = SendValidationMail($data['user'], $validation->Code);
+      if ($err != null) {
+        $data['errors'][] = $err;
+        db_close($db);
+        return;
+      }
+      $validation->Save($db, $data['user']);
+    }
+
     db_close($db);
   } catch (MySQLException $ex) {
     $data['errors'][] = $err;

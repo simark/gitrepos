@@ -20,19 +20,9 @@ try {
 $data = array('user' => $user, 'errors' => array(),
   'adminRepoList' => array(), 'repoList' => array());
 
-echo '<pre>';
-var_dump($user);
-echo '</pre>';
-
 try {
   $db = db_connect();
   $repoList = Repository::ByUserID($db, $user->ID);
-  if ($repoList == null) {
-    $data['errors'][] = "Couldn't fetch Repositories by user ID.";
-    db_close($db);
-    echo render_template('myrepos', $data);
-    return;
-  }
   $data['adminRepoList'] = filterPerm($repoList, Permission::Admin($db));
   $data['repoList'] = $repoList;
   db_close($db);

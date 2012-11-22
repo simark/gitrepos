@@ -8,7 +8,7 @@ title='Mon compte'}
 {include file="beginContent.tpl" title="Mon compte"}
 {include file="debug.tpl"}
 
-{if $msg}<div style="margin: 0 auto; width: 80%;border: 1px solid #ff2233;border-radius: 5px;padding:7px;box-shadow: 10px 10px;margin-bottom: 20px;">{$msg}</div>{/if}
+{if $msg != ''}<div style="margin: 0 auto; width: 80%;border: 1px solid #ff2233;border-radius: 5px;padding:7px;box-shadow: 10px 10px;margin-bottom: 20px;">{$msg}</div>{/if}
 
 <form method="post" action="account.php">
     <table >
