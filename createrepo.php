@@ -34,6 +34,9 @@ function createRepo($name, $description, &$data) {
 
     $db = db_connect();
     $ret = db_add_repo($db, $name, $description, $data['user']);
+    if ($ret != E_SUCCESS) {
+
+    }
     db_close($db);
   } catch (MySQLException $ex) {
     $data['errors'][] = $ex;

@@ -53,7 +53,7 @@ class Permission
     $repoID = $repo->ID;
     $userID = $user->ID;
     $permID = $perm->ID;
-    $db->query("INSERT INTO UserRepoPerms VALUES ('$userID', '$repoID', '$permID');");
+    $db->query("INSERT INTO UserRepoPerms (user, Repo, Perm, is_admin, is_owner) VALUES ('$userID', '$repoID', '$permID', '0', '0')");
   }
 
   private static function ModPerm($db, Permission $perm, User $user, Repository $repo) {

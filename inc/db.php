@@ -221,16 +221,16 @@ function db_get_user_by_email($db, $email) {
  *             not exist.
  */
 function db_add_repo($db, $name, $description, User $user) {
-  echo '0';
   $result = Repository::Create($db, $name, $description);
   if ($result != E_SUCCESS)  return $result;
-  echo '1';
+
   $repo = Repository::ByName($db, $name);
   if ($repo == null)  return E_WEIRD_SHIT;
 
-  echo '2';
   $result = Permission::SetPerm($db, Permission::Admin($db), $user, $repo);
-  echo '3';
+  Repository::SetAdmin($db, $user, $repo);
+  Repository::SetOwner($db, $user, $repo);
+
 	return $result;
 }
 
