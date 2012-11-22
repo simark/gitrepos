@@ -180,7 +180,7 @@ function db_get_repo_user($db, $unsafe_repo, $unsafe_openid) {
 	$openid = $db->escape($unsafe_openid);
 
   $db->query(
-    "SELECT u.id as uid, u.name, p.id as pid, p.name as level, u.username, r.id
+    "SELECT u.id as uid, u.name, p.id as pid, p.name as level, u.username, r.id, urp.is_admin, urp.is_owner
        FROM Users as u,Perms as p, UserRepoPerms as urp,
         ((SELECT r.id
             FROM Users as u, Repos as r, UserRepoPerms as urp

@@ -55,6 +55,9 @@ function AddIfNecessary($db, &$data, Repository $repo) {
 
   try {
     Permission::SetPerm($db, $perm, $newUser, $repo);
+
+    echo '-'. get_post('is_admin') . '-';
+    if (get_post('is_admin') == 'on')  Repository::SetAdmin($db, $newUser, $repo);
   } catch (MySQLException $ex) {
     $data['errors'][] = $ex;
   }
@@ -62,6 +65,7 @@ function AddIfNecessary($db, &$data, Repository $repo) {
 
 function ModifIfNecessary($db, Repository $repo) {
   foreach ($_POST as $key => $value) {
+    if (!is_numeric($key))  continue;
     $user = User::ByID($db, $key);
     if ($user == null)  continue;
     $perm = Permission::CreateFromID($db, $value);
@@ -70,6 +74,7 @@ function ModifIfNecessary($db, Repository $repo) {
       continue;
     }
     Permission::SetPerm($db, $perm, $user, $repo);
+    Repository::SetAdmin($db, $user, $repo, get_post("_$key") == 'on' ? 1 : 0);
   }
 }
 

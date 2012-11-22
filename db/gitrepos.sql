@@ -1,7 +1,9 @@
 -- phpMyAdmin SQL Dump
 -- version 3.5.4
+-- http://www.phpmyadmin.net
 --
--- Generation Time: Nov 20, 2012 at 02:38 PM
+-- Host: localhost
+-- Generation Time: Nov 22, 2012 at 03:42 AM
 -- Server version: 5.5.28-0ubuntu0.12.04.2
 -- PHP Version: 5.3.10-1ubuntu3.4
 
@@ -17,6 +19,7 @@ SET time_zone = "+00:00";
 --
 -- Database: `gitrepos`
 --
+
 -- --------------------------------------------------------
 
 --
@@ -48,19 +51,9 @@ CREATE TABLE IF NOT EXISTS `Repos` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(250) NOT NULL,
   `description` text NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=16 ;
-
---
--- Dumping data for table `Repos`
---
-
-INSERT INTO `Repos` (`id`, `name`, `description`) VALUES
-(1, 'markysrepo', 'Marchi''s first repos'),
-(2, 'malavvsrepo', 'malavv''s first repo'),
-(13, 'NewAwesomeRepo', 'Description complÃ¨te du nouveau repo super awesome que j''ai crÃ©Ã©.'),
-(14, 'AutreRepo', 'sakljds;lakjh askl klajsd'),
-(15, 'dasffadsf', 'asdfasdfasdf');
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=25 ;
 
 -- --------------------------------------------------------
 
@@ -72,23 +65,12 @@ CREATE TABLE IF NOT EXISTS `UserRepoPerms` (
   `user` int(11) NOT NULL,
   `Repo` int(11) NOT NULL,
   `Perm` int(11) NOT NULL,
+  `is_admin` tinyint(1) NOT NULL,
+  `is_owner` tinyint(1) NOT NULL,
   PRIMARY KEY (`user`,`Repo`),
   KEY `Repo` (`Repo`),
   KEY `Perm` (`Perm`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `UserRepoPerms`
---
-
-INSERT INTO `UserRepoPerms` (`user`, `Repo`, `Perm`) VALUES
-(2, 2, 1),
-(1, 1, 2),
-(1, 2, 3),
-(1, 13, 3),
-(1, 14, 3),
-(1, 15, 3),
-(2, 1, 3);
 
 -- --------------------------------------------------------
 
@@ -104,17 +86,8 @@ CREATE TABLE IF NOT EXISTS `Users` (
   `isstudent` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Was verified as a student.',
   `pubkey` text NOT NULL COMMENT 'Public Key',
   `username` varchar(100) NOT NULL COMMENT 'Username nospaces',
-  `notStudent` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
-
---
--- Dumping data for table `Users`
---
-
-INSERT INTO `Users` (`id`, `openid`, `name`, `email`, `isstudent`, `pubkey`, `username`, `notStudent`) VALUES
-(1, 'https://www.google.com/accounts/o8/id?id=AItOawlDvByvDssHRv0wAzbND5rz_L9bgxbzx9g ', 'Maxime Lavigne', 'maxime.lavigne@polymtl.ca', 0, 'ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAgB4Thor3X3VLyc7FIxolVRox242A1yXfDjGOpQv8s5OB26eknCsxs69M9Mv5oFUvACTxpLxprLXYVD0xTATLmvO+9eSOFMU2iq68xUmvd2oIw4UBFyPEs9hXl/wFnqJMauCuw9+GSt8c0YRRkOLntovNtdug9n8mBhex0yBBzAg2hs2slshK7zTz0S0AIvB9FFHpRuEadBW544UiUUqmDzgSXaeAnV4MQuRnimzh9tdb0pVlIGyQ6ve/gE8qx82udL/1jjQ/DjAbdQT0L+uhrgRtvmdq9eeMSunjC+MBFoMtls5PbyJJlM8gc1tX/ySgAEyoTQbdl78mtkO1/ZNyx6V7P7thXciP6SUdcRN5gLDpvMGzB6Xp1VJ2bMXbLElb4Wbsfsn7JM94d2H660V2A3eO8SaJogvcEHnzCCy1+MAFNbdbGPRGwt1QpWQJkXKTtp7bMWkGZBlkYRSuAhXt7uEppjD9e161RYdKAwqz0emI15srk4DtmOt50Pp6GCc5isyJRAH1AOHI8apYDA8Hi4We10r6CLswFbUh8CDnSSIislA8q7pxFiBilHmdYHsTQ3NYiNjcELTn0ybeedU2C9rvn7hxx1SjqrsHaYakqq+qxsPHRom3ystdJNFOYy1aN9Ivb7ZFUJSevfHE5qmKDNOKfBu7nMzojCcQzbMEWtYyQ== imported-openssh-key', 'malavv', 0),
-(2, '------------------------', 'Simon Marchi sdfsd', 'simon.marchi@polymtl.ca sdfsdf', 1, 'loldsaoojfsdaljkgfhasldjkgfaskldfgasjkldfgaskldgflasdgflkasdgfljkasdfsadfasdfasdfsadfsda sdfsdf', 'markyssdfsdf', 0);
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=14 ;
 
 -- --------------------------------------------------------
 

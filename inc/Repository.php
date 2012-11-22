@@ -68,10 +68,10 @@ class Repository
     return new Repository($data);
   }
 
-  public static function SetAdmin($db, User $user, Repository $repo) {
+  public static function SetAdmin($db, User $user, Repository $repo, $on = 1) {
     $uid = $user->ID;
     $rid = $repo->ID;
-    $db->query("UPDATE UserRepoPerms as urp SET is_admin = '1' WHERE urp.user = $uid AND urp.Repo = $rid;");
+    $db->query("UPDATE UserRepoPerms as urp SET is_admin = '$on' WHERE urp.user = $uid AND urp.Repo = $rid;");
   }
 
   public static function SetOwner($db, User $user, Repository $repo) {
