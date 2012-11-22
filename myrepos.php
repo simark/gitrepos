@@ -23,7 +23,7 @@ $data = array('user' => $user, 'errors' => array(),
 try {
   $db = db_connect();
   $repoList = Repository::ByUserID($db, $user->ID);
-  $data['adminRepoList'] = filterPerm($repoList, Permission::Admin($db));
+  $data['adminRepoList'] = filterPerm($repoList);
   $data['repoList'] = $repoList;
   db_close($db);
 
@@ -34,10 +34,10 @@ try {
 echo render_template('myrepos', $data);
 
 // ------------------- Helper --------------------
-function filterPerm(array $repoList, Permission $perm) {
+function filterPerm(array $repoList) {
   $newArray = array();
   foreach ($repoList as $repo) {
-    if ($repo->OPermission->ID != $perm->ID)  continue;
+    if (!$repo->Options['is_admin'])  continue;
     $newArray[] = $repo;
   }
   return $newArray;

@@ -8,13 +8,16 @@
 {include file="beginContent.tpl" title="Mes entrepôts"}
 {include file="debug.tpl"}
 
-<h2>Mes entrepôts</h2>
+<h2>Entrepôts pouvant être gérés</h2>
 {if count($adminRepoList) > 0}
 	<ul>
 	{foreach $adminRepoList as $repo}
-		<li>
-            <a href="repodetail.php?r={$repo->Name}">{$repo->Name}</a>
-            <details>{$repo->Description}</details>
+		<li><a  href="repodetail.php?r={$repo->Name}">{$repo->Name}</a>
+
+            <details>
+                <summary>Détails{if $repo->Options['is_owner']} - Vous êtes propriétaire{/if}</summary>
+                {$repo->Description}
+            </details>
         </li>
 	{/foreach}
 	</ul>
@@ -26,7 +29,7 @@
 {if count($repoList) > 0}
 	<ul>
 	{foreach $repoList as $repo}
-		<li>{$repo->OPermission->Perm} sur {$repo->Name}</a><br />
+		<li>{$repo->Options['perm']->Perm} sur {$repo->Name}</a><br />
 		<span style="color: white; background-color: grey; padding: 4px; font-family: monospace;">git clone ssh://git@git.aep.polymtl.ca/{$repo->Name}</span><br />
         <details>{$repo->Description}</details>
 		</li>

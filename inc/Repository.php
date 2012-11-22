@@ -32,7 +32,7 @@ class Repository
     $this->ID = $data['id'];
     $this->Name = $data['name'];
     $this->Description = $data['description'];
-    $this->OPermission = array();
+    $this->Options = array();
   }
 
   public static function ByID($db, $unsafe_id) {
@@ -52,9 +52,9 @@ class Repository
     $return = array();
     foreach ($data as $value) {
       $obj = new Repository($value);
-      $obj->Options['perm'] = Permission::CreateFromID($db, $value['perm']);
+      $obj->Options['perm'] = Permission::CreateFromID($db, $value['Perm']);
       $obj->Options['is_admin'] = $value['is_admin'];
-      $obj->Options['is_owner'] =$value['is_owner'];
+      $obj->Options['is_owner'] = $value['is_owner'];
       $return[] = $obj;
     }
     return $return;
