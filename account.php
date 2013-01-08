@@ -11,20 +11,6 @@ require_once('inc/Validate.php');
 require_once('inc/gitolite-conf.php');
 require_once('inc/Router.php');
 
-/*
-echo '<pre>';
-var_dump(Session::User());
-echo '</pre>';
-*/
-//session_start();
-//session_destroy();
-$db = db_connect();
-echo '<pre>';
-$data = Repository::GitoliteConfig($db);
-var_dump($data);
-echo '</pre>';
-db_close($db);
-
 Session::PrivateZone();
 
 $data = array('errors' => array(), 'msg' => '');
